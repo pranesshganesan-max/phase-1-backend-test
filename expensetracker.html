@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expense Tracker</title>
+
+    <style>
+  body {
+        background: #5398bacc;
+        font-family: Arial;
+      }
+        .box{ 
+         width: 400px;
+        margin: 10px ;
+        background: lightgoldenrodyellow;
+        padding: 20px;
+        border-radius: 10px;
+        
+            
+        }
+
+           
+
+         h1 {
+        text-align: center ;
+        font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+      }
+      input {
+        width: 300px;
+        padding: 10px;
+        box-sizing: border-box;
+        margin: 5px; 
+        font-size: 20px;
+      }
+      button {
+        width: 100px;
+        padding: 10px; 
+        background-color: lightgreen ; 
+        color: black;
+      }
+
+    </style>
+</head>
+
+<body>
+
+    <br><br><br><br><br><br><br>
+<center>
+    <div class="box">
+
+        <h1>Expenses</h1>
+
+  <input type="date" id="date"><br>
+ <input type="text" id="title" placeholder="Reason for expense"><br>
+<input type="number" id="amount" placeholder="Amount"><br>
+
+    <button onclick="logExpenses()" >Input Expenses</button>
+        <button onclick="viewExpenses()">View Expenses</button><br>
+     <button onclick="Logout()">Sighn Out</button>
+        <div id="expenseList">
+
+        </div>
+         
+     </div>
+
+</center>
+    
+ 
+   <script>
+           
+    var today = new Date()
+
+    var year = today.getFullYear()
+    var month = today.getMonth() + 1
+    var day = today.getDate()
+
+    var todaysDate = year + "-" + month + "-" + day
+ document.getElementById("date").value = todaysDate
+  
+
+  async function logExpenses(){
+var titleInput = document.getElementById("title").value
+        var amountInput = document.getElementById("amount").value
+        var card = document.createElement("div")
+ var title = document.createElement("p")
+        title.textContent = titleInput
+ var amount = document.createElement("p")
+        amount.textContent = amountInput
+        card.appendChild(title)
+        card.appendChild(amount)
+        document.getElementById("expenseList").appendChild(card)
+ 
+
+ var date = document.getElementById("date").value
+       
+           
+        
+        
+
+
+       
+  var title2 = document.getElementById('title').value
+ var amount2 = document.getElementById('amount').value
+  var expenseObject = {
+                "title": title2,
+                "amount": amount2
+            }
+console.log(expenseObject)
+       
+   var jsonObject = {
+         "date": date,
+            "expenses": expenseObject
+        }
+console.log(jsonObject)
+document.getElementById("title").value = ""
+        document.getElementById("amount").value = ""
+        await fetch("/logExpenses",{
+
+ "method": "POST",
+
+            "headers": {
+         "Content-Type": "application/json"
+            },
+
+            "body": JSON.stringify(jsonObject)
+
+        })
+
+    }
+ 
+    function viewExpenses(){
+
+    window.location.href = "/viewexpenses"
+
+} 
+
+function logout(){
+
+}
+
+
+</script>
+
+</body>
+</html>

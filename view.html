@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Expenses</title>
+
+    <style>
+
+         body {
+        background: #5398bacc;
+        font-family: Arial;
+      }
+    .box{
+         width: 400px;
+        margin: 40px auto;
+        background: lightgoldenrodyellow;
+        padding: 20px;
+        border-radius: 10px;
+    }
+         h1 {
+        text-align: center ;
+        font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+      }
+      input {
+        width: 300px;
+        height: 50px;
+        padding: 10px;
+        box-sizing: border-box;
+        margin: 5px; 
+        padding: 5px;
+      }
+      button {
+        height: 50px;
+        width: 300px;
+        padding: 10px; 
+        background-color: lightgreen ; 
+        color: black;
+      }
+
+    </style>
+</head>
+
+<body>
+    <br><br><br><br><br><br><br><br>
+<center>
+    <div   class="box">
+       <h1>View Expenses</h1>
+      <input type="date" id="date"><br>
+       <button onclick="sendExpenses()">View Expenses</button><br>
+        
+    </div>
+
+ <div id="expenseList"></div>
+ <div id="total"></div>
+</center>
+   <button onclick="logout()">Sign Out</button> 
+
+
+    <script>
+
+        var today = new Date()
+
+        var year = today.getFullYear()
+        var month = today.getMonth() + 1
+        var day = today.getDate()
+
+        var todaysDate = year + "-" + month + "-" + day
+
+        document.getElementById("date").value = todaysDate
+ async function sendExpenses(){
+
+            var username = localStorage.getItem("username")
+
+            var date = document.getElementById("date").value
+
+            var jsonObject = {
+                "username": username,
+                "date": date
+            }
+
+            var response = await fetch("/sendExpenses",{
+                "method": "POST",
+                "headers": {
+                    "Content-Type": "application/json"
+                },
+                "body": JSON.stringify(jsonObject)
+            })
+
+            var data = await response.json()
+
+            document.getElementById("expenseList").innerHTML = ""
+
+            var total = 0
+
+            for(var i = 0; i < data.expenses.length; i = i + 1){
+ 
+var card = document.createElement("div")
+
+var title = document.createElement("p")
+title.textContent = data.expenses[i].title
+
+var amount = document.createElement("p")
+amount.textContent = data.expenses[i].amount
+
+var deleteBtn = document.createElement("button")
+deleteBtn.textContent = "Delete"
+
+deleteBtn.addEventListener("click", async function(event) {
+    event.target.parentElement.style.display = "none"
+
+    let content = event.target.parentElement.children[0].innerText
+    let amount = event.target.parentElement.children[1].innerText
+    let date = document.getElementById("date").value
+
+    var jsonObject = {
+        date: date,
+        title: content,
+        amount: amount
+    }
+
+    await fetch("/deleteExpense", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(jsonObject)
+    })
+})
+
+var editBtn = document.createElement("button")
+editBtn.textContent = "Edit"
+editBtn.addEventListener("click", async function(event) {
+    var oldTitle = event.target.parentElement.children[0].innerText
+    var oldAmount = event.target.parentElement.children[1].innerText
+ var titleInput = prompt("Write the new expense title")
+    var amountInput = prompt("Write the new amount")
+event.target.parentElement.children[0].innerText = titleInput
+    event.target.parentElement.children[1].innerText = amountInput
+
+    var jsonObject = {
+        date: document.getElementById("date").value,
+        oldTitle: oldTitle,
+        oldAmount: oldAmount,
+        title: titleInput,
+        amount: amountInput
+    }
+
+    await fetch("/editExpense", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(jsonObject)
+    })
+})
+card.appendChild(title)
+card.appendChild(amount)
+card.appendChild(editBtn)
+card.appendChild(deleteBtn)
+document.getElementById("expenseList").appendChild(card)
+total = total + parseFloat(data.expenses[i].amount)
+            }
+ document.getElementById("total").innerText = total + " is the monthly total"
+
+        }
+
+    </script>
+
+</body>
+</html>
